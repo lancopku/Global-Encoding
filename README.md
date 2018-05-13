@@ -36,10 +36,10 @@ python3 train.py -log log_name -config config_yaml -gpus id -restore checkpoint 
 If you use this code for your research, please cite the paper this code is based on: <a href="https://arxiv.org/abs/1805.03989">Global Encoding for Abstractive Summarization</a>:.
 ```
 @inproceedings{globalencoding,
-  title={Global Encoding for Abstractive Summarization},
-  author={Junyang Lin and Xu Sun and Shuming Ma and Qi Su},
+  title     = {Global Encoding for Abstractive Summarization},
+  author    = {Junyang Lin and Xu Sun and Shuming Ma and Qi Su},
   booktitle = {{ACL} 2018},
-  year={2018},
-  volume = {abs/1805.03989}
+  year      = {2018},
+  volume    = {abs/1805.03989}
 }
 ```
