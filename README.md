@@ -37,8 +37,9 @@ If you use this code for your research, please cite the paper this code is based
 ```
 @inproceedings{globalencoding,
   title={Global Encoding for Abstractive Summarization},
-  author={Junyang Lin, Xu Sun, Shuming Ma and Qi Su},
+  author={Junyang Lin and Xu Sun and Shuming Ma and Qi Su},
   booktitle = {{ACL} 2018},
-  year={2018}
+  year={2018},
+  volume = {abs/1805.03989}
 }
 ```
