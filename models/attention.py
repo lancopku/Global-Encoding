@@ -1,10 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
-
 import math
 import torch
 import torch.nn as nn
