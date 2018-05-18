@@ -10,7 +10,7 @@ This is the code for our paper *Global Encoding for Abstractive Summarization*, 
 
 **************************************************************
 
-## Preprocess
+## Preprocessing
 ```
 python3 preprocess.py -load_data path_to_data -save_data path_to_store_data 
 ```
