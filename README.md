@@ -5,7 +5,7 @@ This is the code for our paper *Global Encoding for Abstractive Summarization*, 
 
 ## Requirements
 * Ubuntu 16.0.4
-* Python3.5
+* Python 3.5
 * Pytorch 0.3.1
 
 **************************************************************
@@ -25,7 +25,7 @@ python3 train.py -log log_name -config config_yaml -gpus id
 
 ****************************************************************
 
-# Evaluation
+## Evaluation
 ```
 python3 train.py -log log_name -config config_yaml -gpus id -restore checkpoint -mode eval
 ```
