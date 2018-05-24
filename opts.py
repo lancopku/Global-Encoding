@@ -1,11 +1,3 @@
-'''
- @Date  : 2017/12/19
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
-
-
 def model_opts(parser):
 
     parser.add_argument('-config', default='default.yaml', type=str,
