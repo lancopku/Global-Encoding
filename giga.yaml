@@ -1,6 +1,5 @@
 data: '/home/linjunyang/giga/data/'
 logF: 'experiments/'
-#refF: '/home/linjunyang/nist/nist03.tok.ref'
 epoch: 20
 batch_size: 64
 optim: 'adam'
