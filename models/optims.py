@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 import torch.optim as optim
 from torch.nn.utils import clip_grad_norm
 
