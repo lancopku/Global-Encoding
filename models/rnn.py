@@ -57,9 +57,6 @@ class rnn_encoder(nn.Module):
         self.sw3 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
         self.sw33 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
         self.swish = nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=5, padding=2)
-        '''self.swish = nn.Sequential(nn.Conv1d(config.hidden_size, 128, kernel_size=7, padding=3), nn.SELU(), nn.MaxPool1d(5, stride=1, padding=2),
-                                   nn.Conv1d(128, 128, kernel_size=5, padding=2), nn.SELU(), nn.AvgPool1d(3, stride=1, padding=1),
-                                   nn.Conv1d(128, config.hidden_size, kernel_size=3, padding=1), nn.Sigmoid())'''
         self.linear = nn.Sequential(nn.Linear(2*config.hidden_size, 2*config.hidden_size), nn.GLU())
         self.filter_linear = nn.Linear(3*config.hidden_size, config.hidden_size)
         self.tanh = nn.Tanh()
