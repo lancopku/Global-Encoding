@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/19
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 import torch
 import utils
 
