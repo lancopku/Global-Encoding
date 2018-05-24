@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 from .attention import *
 from .loss import *
 from .optims import *
