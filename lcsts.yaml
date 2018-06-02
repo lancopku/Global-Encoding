@@ -1,4 +1,4 @@
-data: '/home/linjunyang/lcsts/data/'
+data: '/home/linjunyang/data/lcsts/data/'
 logF: 'experiments/lcsts/'
 epoch: 20
 batch_size: 64
@@ -12,8 +12,7 @@ start_decay_at: 6
 emb_size: 512
 hidden_size: 512
 dec_num_layers: 2
-enc_num_layers: 3
-res_layers: 1
+enc_num_layers: 2
 bidirectional: True
 dropout: 0.0
 max_time_step: 50
@@ -24,9 +23,8 @@ shared_vocab: True
 beam_size: 10
 unk: True
 schedule: False
-resRNN: False
 selfatt: True
-attemb: False
 schesamp: False
 swish: True
 hops: 1
+length_norm: True

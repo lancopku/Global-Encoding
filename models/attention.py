@@ -29,7 +29,7 @@ class luong_attention(nn.Module):
 
 class luong_gate_attention(nn.Module):
     
-    def __init__(self, hidden_size, emb_size, prob=0.1):
+    def __init__(self, hidden_size, emb_size, prob=0.0):
         super(luong_gate_attention, self).__init__()
         self.hidden_size, self.emb_size = hidden_size, emb_size
         self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.Dropout(p=prob))
@@ -41,17 +41,15 @@ class luong_gate_attention(nn.Module):
         self.context = context.transpose(0, 1)
 
     def forward(self, h, embs, m, hops=1, selfatt=False):
-        if hops == 1:
-            gamma_h = self.linear_in(h).unsqueeze(2)
-            #gamma_h = self.selu(gamma_h)
-            weights = torch.bmm(self.context, gamma_h).squeeze(2)
-            if selfatt:
-                weights = weights / math.sqrt(512)
-            weights = self.softmax(weights)
-            c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-            memory = m
-            output = self.linear_out(torch.cat([h, c_t], 1))
-            return output, weights, memory
+        gamma_h = self.linear_in(h).unsqueeze(2)
+        weights = torch.bmm(self.context, gamma_h).squeeze(2)
+        if selfatt:
+            weights = weights / math.sqrt(512)
+        weights = self.softmax(weights)
+        c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
+        memory = m
+        output = self.linear_out(torch.cat([h, c_t], 1))
+        return output, weights, memory
 
         return output, weights, memory
 

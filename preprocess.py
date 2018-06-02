@@ -202,9 +202,9 @@ def main():
     print('Saving source vocabulary to \'' + tgt_dict + '\'...')
     dicts['tgt'].writeFile(tgt_dict)
 
-    datas = {'train': train, 'valid': valid,
+    data = {'train': train, 'valid': valid,
              'test': test, 'dict': dicts}
-    pickle.dump(datas, open(opt.save_data+'data.pkl', 'wb'))
+    pickle.dump(data, open(opt.save_data+'data.pkl', 'wb'))
 
 
 if __name__ == "__main__":

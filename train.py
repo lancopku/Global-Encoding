@@ -45,7 +45,7 @@ def load_data():
     datas['train']['length'] = int(datas['train']['length'] * opt.scale)
 
     trainset = utils.BiDataset(datas['train'], char=config.char)
-    validset = utils.BiDataset(datas['valid'], char=config.char)
+    validset = utils.BiDataset(datas['test'], char=config.char)
 
     src_vocab = datas['dict']['src']
     tgt_vocab = datas['dict']['tgt']
