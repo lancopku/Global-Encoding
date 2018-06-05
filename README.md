@@ -7,6 +7,12 @@ This is the code for our paper *Global Encoding for Abstractive Summarization*, 
 * Ubuntu 16.0.4
 * Python 3.5
 * Pytorch 0.3.1
+* pyrouge
+
+In order to use pyrouge, set rouge path with the line below:
+```
+pyrouge_set_rouge_path script/RELEASE-1.5.5
+```
 
 **************************************************************
 
