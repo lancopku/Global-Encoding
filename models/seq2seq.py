@@ -122,7 +122,7 @@ class seq2seq(nn.Module):
         else:
             alignments = None
 
-        return sample_ids, alignmentsi
+        return sample_ids, alignments
 
     def beam_sample(self, src, src_len, beam_size=1, eval_=False):
 
