@@ -28,7 +28,6 @@ opt = parser.parse_args()
 config = utils.read_config(opt.config)
 torch.manual_seed(opt.seed)
 opts.convert_to_config(opt, config)
-log_path = config.logF + opt.log + '/'
 
 # cuda
 use_cuda = torch.cuda.is_available() and len(opt.gpus) > 0
@@ -177,8 +176,8 @@ def train_model(model, datas, optim, epoch, params):
             for metric in config.metrics:
                 params[metric].append(score[metric])
                 if score[metric] >= max(params[metric]):
-                    with codecs.open(log_path+'best_'+metric+'_prediction.txt','w','utf-8') as f:
-                        f.write(codecs.open(log_path+'candidate.txt','r','utf-8').read())
+                    with codecs.open(params['log_path']+'best_'+metric+'_prediction.txt','w','utf-8') as f:
+                        f.write(codecs.open(params['log_path']+'candidate.txt','r','utf-8').read())
                     save_model(params['log_path']+'best_'+metric+'_checkpoint.pt', model, optim, params['updates'])
             model.train()
             params['report_loss'], params['report_time'] = 0, time.time()
@@ -236,7 +235,7 @@ def eval_model(model, datas, params):
             cands.append(cand)
         candidate = cands
 
-    with codecs.open(log_path+'candidate.txt','w+','utf-8') as f:
+    with codecs.open(params['log_path']+'candidate.txt','w+','utf-8') as f:
         for i in range(len(candidate)):
             f.write(" ".join(candidate[i])+'\n')
 
