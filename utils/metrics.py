@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 import pyrouge
 import codecs
 import os
@@ -40,11 +34,6 @@ def bleu(reference, candidate, log_path, print_log, config):
 
 
 def rouge(reference, candidate, log_path, print_log, config):
-    '''print(len(reference), len(candidate), candidate[:5])
-    len_sum = 0
-    for i in range(len(reference)):
-        len_sum += len(reference[i].split())
-    print(len_sum/len(reference))'''
     assert len(reference) == len(candidate)
 
     ref_dir = log_path + 'reference/'
@@ -58,7 +47,7 @@ def rouge(reference, candidate, log_path, print_log, config):
         with codecs.open(ref_dir+"%06d_reference.txt" % i, 'w', 'utf-8') as f:
             f.write(" ".join(reference[i]).replace(' <\s> ', '\n') + '\n')
         with codecs.open(cand_dir+"%06d_candidate.txt" % i, 'w', 'utf-8') as f:
-            f.write(" ".join(candidate[i]).replace(' <\s> ', '\n') + '\n')
+            f.write(" ".join(candidate[i]).replace(' <\s> ', '\n').replace('<unk>', 'UNK') + '\n')
 
     r = pyrouge.Rouge155()
     r.model_filename_pattern = '#ID#_reference.txt'
@@ -81,24 +70,3 @@ def rouge(reference, candidate, log_path, print_log, config):
               % (str(f_score), str(recall), str(precision)))
 
     return f_score[:], recall[:], precision[:]
-
-if __name__ == "__main__":
-    with codecs.open('/home/linjunyang/giga/valid.src', 'r', 'utf-8') as fc, codecs.open('/home/linjunyang/giga/valid.tgt', 'r', 'utf-8') as fr:
-        cand, ref = fc.readlines(), fr.readlines()
-        ref_ = []
-        for r in ref:
-            ref_.append(r.split())
-        can = []
-        for c in cand:
-            can.append(c.split()[:9])
-    print(rouge(ref_, can, log_path='/home/linjunyang/'))
-    '''with codecs.open('/home/linjunyang/giga/train.src', 'r', 'utf-8') as fc, codecs.open('/home/linjunyang/lcsts/train.tgt', 'r', 'utf-8') as fr, codecs.open('/home/linjunyang/giga/train.src', 'r', 'utf-8') as gc, codecs.open('/home/linjunyang/giga/train.tgt', 'r', 'utf-8') as gr:
-        cand, ref, gcand, gref = fc.readlines(), fr.readlines(), gc.readlines(), gr.readlines()
-    lsrc, ltgt, giga_src, giga_tgt = [], [], [], []
-    for i in range(len(ref)):
-        lsrc.append(len(cand[i].split()))
-        ltgt.append(len(ref[i].split()))
-        giga_src.append(len(gcand[i].split()))
-        giga_tgt.append(len(gref[i].split()))
-    print(min(lsrc), max(lsrc), sum(lsrc)/len(lsrc), min(ltgt), max(ltgt), sum(ltgt)/len(ltgt))
-    print(min(giga_src), max(giga_src), sum(giga_src)/len(giga_src), min(giga_tgt), max(giga_tgt), sum(giga_tgt)/len(giga_tgt))'''

@@ -1,10 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
-
 import math
 import torch
 import torch.nn as nn
@@ -18,7 +11,7 @@ class luong_attention(nn.Module):
         if pool_size > 0:
             self.linear_out = maxout(2*hidden_size + emb_size, hidden_size, pool_size)
         else:
-            self.linear_out = nn.Sequential(nn.Linear(2*hidden_size + emb_size, hidden_size), nn.SELU(), nn.Linear(hidden_size, hidden_size), nn.Tanh())
+            self.linear_out = nn.Sequential(nn.Linear(2*hidden_size + emb_size, hidden_size), nn.Tanh())
         self.softmax = nn.Softmax(dim=1)
 
     def init_context(self, context):
@@ -39,45 +32,34 @@ class luong_gate_attention(nn.Module):
     def __init__(self, hidden_size, emb_size, prob=0.1):
         super(luong_gate_attention, self).__init__()
         self.hidden_size, self.emb_size = hidden_size, emb_size
-        self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.Dropout(p=prob))
-        self.feed = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.remove = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.linear_out = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
-        self.mem_gate = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.softmax = nn.Softmax(dim=1)
-        self.selu = nn.SELU()
-        self.simple = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Linear(hidden_size, hidden_size), nn.Sigmoid())
+        self.linear_enc = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
+                                        nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
+        self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
+                                       nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
+        self.linear_out = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
+                                        nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
+        self.softmax = nn.Softmax(dim=-1)
 
     def init_context(self, context):
         self.context = context.transpose(0, 1)
 
-    def forward(self, h, embs, m, hops=1, selfatt=False):
-        if hops == 1:
+    def forward(self, h, selfatt=False):
+        if selfatt:
+            gamma_enc = self.linear_enc(self.context) # Batch_size * Length * Hidden_size
+            gamma_h = gamma_enc.transpose(1, 2) # Batch_size * Hidden_size * Length
+            weights = torch.bmm(gamma_enc, gamma_h) # Batch_size * Length * Length
+            weights = self.softmax(weights/math.sqrt(512))
+            c_t = torch.bmm(weights, gamma_enc) # Batch_size * Length * Hidden_size
+            output = self.linear_out(torch.cat([gamma_enc, c_t], 2)) + self.context
+            output = output.transpose(0, 1) # Length * Batch_size * Hidden_size
+        else:
             gamma_h = self.linear_in(h).unsqueeze(2)
-            #gamma_h = self.selu(gamma_h)
             weights = torch.bmm(self.context, gamma_h).squeeze(2)
-            if selfatt:
-                weights = weights / math.sqrt(512)
             weights = self.softmax(weights)
             c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-            memory = m
             output = self.linear_out(torch.cat([h, c_t], 1))
-            return output, weights, memory
-        x = h
-        for i in range(hops):
-            gamma_h = self.linear_in(x).unsqueeze(2)
-            weights = torch.bmm(self.context, gamma_h).squeeze(2)
-            weights = self.softmax(weights)
-            c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-            x = c_t + x
-        feed_gate = self.feed(torch.cat([x, h], 1))
-        remove_gate = self.remove(torch.cat([x, h], 1))
-        memory = (remove_gate * m) + (feed_gate * (x+h))
-        mem_gate = self.mem_gate(torch.cat([memory, h], 1))
-        m_x = mem_gate * x
-        output = self.linear_out(torch.cat([m_x, h], 1))
 
-        return output, weights, memory
+        return output, weights
 
 
 class bahdanau_attention(nn.Module):

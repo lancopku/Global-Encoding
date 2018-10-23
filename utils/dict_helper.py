@@ -109,9 +109,10 @@ class Dict(object):
             return self
 
         # Only keep the `size` most frequent entries.
-        freq = torch.Tensor(
+        freq = torch.tensor(
                 [self.frequencies[i] for i in range(len(self.frequencies))])
         _, idx = torch.sort(freq, 0, True)
+        idx = idx.tolist()
 
         newDict = Dict()
         newDict.lower = self.lower
