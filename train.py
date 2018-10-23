@@ -1,6 +1,6 @@
 import torch
 import torch.utils.data
-from torch.autograd import Variable
+# from torch.autograd import Variable
 import lr_scheduler as L
 
 import os
@@ -40,14 +40,22 @@ if use_cuda:
 
 def load_data():
     print('loading data...\n')
-    datas = pickle.load(open(config.data+'data.pkl', 'rb'))
-    datas['train']['length'] = int(datas['train']['length'] * opt.scale)
+    data = pickle.load(open(config.data+'data.pkl', 'rb'))
+    data['train']['length'] = int(data['train']['length'] * opt.scale)
 
+<<<<<<< HEAD
+    trainset = utils.BiDataset(data['train'], char=config.char)
+    validset = utils.BiDataset(data['valid'], char=config.char)
+||||||| merged common ancestors
+    trainset = utils.BiDataset(datas['train'], char=config.char)
+    validset = utils.BiDataset(datas['valid'], char=config.char)
+=======
     trainset = utils.BiDataset(datas['train'], char=config.char)
     validset = utils.BiDataset(datas['test'], char=config.char)
+>>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 
-    src_vocab = datas['dict']['src']
-    tgt_vocab = datas['dict']['tgt']
+    src_vocab = data['dict']['src']
+    tgt_vocab = data['dict']['tgt']
     config.src_vocab_size = src_vocab.size()
     config.tgt_vocab_size = tgt_vocab.size()
 
@@ -92,11 +100,11 @@ def build_model(checkpoints, print_log):
         model.cuda()
     
     # optimizer
-    '''if checkpoints is not None:
+    if checkpoints is not None:
         optim = checkpoints['optim']
-    else:'''
-    optim = models.Optim(config.optim, config.learning_rate, config.max_grad_norm,
-                         lr_decay=config.learning_rate_decay, start_decay_at=config.start_decay_at)
+    else:
+        optim = models.Optim(config.optim, config.learning_rate, config.max_grad_norm,
+                             lr_decay=config.learning_rate_decay, start_decay_at=config.start_decay_at)
     optim.set_parameters(model.parameters())
 
     # print log
@@ -112,18 +120,19 @@ def build_model(checkpoints, print_log):
     return model, optim, print_log
 
 
-def train_model(model, datas, optim, epoch, params):
+def train_model(model, data, optim, epoch, params):
 
     model.train()
-    trainloader = datas['trainloader']
+    trainloader = data['trainloader']
 
     for src, tgt, src_len, tgt_len, original_src, original_tgt in trainloader:
 
         model.zero_grad()
 
-        src = Variable(src)
-        tgt = Variable(tgt)
-        src_len = Variable(src_len)
+        # src = Variable(src)
+        # tgt = Variable(tgt)
+        # src_len = Variable(src_len)
+
         if config.use_cuda:
             src = src.cuda()
             tgt = tgt.cuda()
@@ -145,14 +154,17 @@ def train_model(model, datas, optim, epoch, params):
                 loss, outputs = model(src, lengths, dec, targets)
             pred = outputs.max(2)[1]
             targets = targets.t()
-            num_correct = pred.data.eq(targets.data).masked_select(targets.ne(utils.PAD).data).sum()
-            num_total = targets.ne(utils.PAD).data.sum()
+            # num_correct = pred.data.eq(targets.data).masked_select(targets.ne(utils.PAD).data).sum()
+            # num_total = targets.ne(utils.PAD).data.sum()
+            num_correct = pred.eq(targets).masked_select(targets.ne(utils.PAD)).sum().item()
+            num_total = targets.ne(utils.PAD).sum().item()
             if config.max_split == 0:
                 loss = torch.sum(loss) / num_total
                 loss.backward()
             optim.step()
 
-            params['report_loss'] += loss.data
+            # params['report_loss'] += loss.data
+            params['report_loss'] += loss.item()
             params['report_correct'] += num_correct
             params['report_total'] += num_total
 
@@ -172,7 +184,7 @@ def train_model(model, datas, optim, epoch, params):
                           % (epoch, params['report_loss'], time.time()-params['report_time'],
                              params['updates'], params['report_correct'] * 100.0 / params['report_total']))
             print('evaluating after %d updates...\r' % params['updates'])
-            score = eval_model(model, datas, params)
+            score = eval_model(model, data, params)
             for metric in config.metrics:
                 params[metric].append(score[metric])
                 if score[metric] >= max(params[metric]):
@@ -189,26 +201,28 @@ def train_model(model, datas, optim, epoch, params):
     optim.updateLearningRate(score=0, epoch=epoch)
 
 
-def eval_model(model, datas, params):
+def eval_model(model, data, params):
 
     model.eval()
     reference, candidate, source, alignments = [], [], [], []
-    count, total_count = 0, len(datas['validset'])
-    validloader = datas['validloader']
-    tgt_vocab = datas['tgt_vocab']
+    count, total_count = 0, len(data['validset'])
+    validloader = data['validloader']
+    tgt_vocab = data['tgt_vocab']
+
 
     for src, tgt, src_len, tgt_len, original_src, original_tgt in validloader:
 
-        src = Variable(src, volatile=True)
-        src_len = Variable(src_len, volatile=True)
+        # src = Variable(src, volatile=True)
+        # src_len = Variable(src_len, volatile=True)
         if config.use_cuda:
             src = src.cuda()
             src_len = src_len.cuda()
 
-        if config.beam_size > 1:
-            samples, alignment, weight = model.beam_sample(src, src_len, beam_size=config.beam_size, eval_=True)
-        else:
-            samples, alignment = model.sample(src, src_len)
+        with torch.no_grad():
+            if config.beam_size > 1:
+                samples, alignment, weight = model.beam_sample(src, src_len, beam_size=config.beam_size, eval_=True)
+            else:
+                samples, alignment = model.sample(src, src_len)
 
         candidate += [tgt_vocab.convertToLabels(s, utils.EOS) for s in samples]
         source += original_src
@@ -233,6 +247,8 @@ def eval_model(model, datas, params):
                 else:
                     cand.append(word)
             cands.append(cand)
+            if len(cand) == 0:
+                print('Error!')
         candidate = cands
 
     with codecs.open(params['log_path']+'candidate.txt','w+','utf-8') as f:
@@ -294,7 +310,7 @@ def main():
     else:
         checkpoints = None
 
-    datas = load_data()
+    data = load_data()
     print_log, log_path = build_log()
     model, optim, print_log = build_model(checkpoints, print_log)
     # scheduler
@@ -313,12 +329,11 @@ def main():
             if config.schedule:
                 scheduler.step()
                 print("Decaying learning rate to %g" % scheduler.get_lr()[0])
-            train_model(model, datas, optim, i, params)
+            train_model(model, data, optim, i, params)
+        for metric in config.metrics:
+            print_log("Best %s score: %.2f\n" % (metric, max(params[metric])))
     else:
-        score = eval_model(model, datas, params)
-
-    for metric in config.metrics:
-        print_log("Best %s score: %.2f\n" % (metric, max(params[metric])))
+        score = eval_model(model, data, params)
 
 
 if __name__ == '__main__':
