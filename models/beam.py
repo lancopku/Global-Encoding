@@ -116,7 +116,8 @@ class Beam(object):
             a, br, d = e.size()
             e = e.view(a, self.size, br // self.size, d)
             sentStates = e[:, :, idx]
-            sentStates.data.copy_(sentStates.data.index_select(1, positions))
+            # sentStates.data.copy_(sentStates.data.index_select(1, positions))
+            sentStates.copy_(sentStates.index_select(1, positions))
 
     def beam_update_gru(self, state, idx):
         positions = self.getCurrentOrigin()
@@ -124,7 +125,8 @@ class Beam(object):
             br, d = e.size()
             e = e.view(self.size, br // self.size, d)
             sentStates = e[:, idx]
-            sentStates.data.copy_(sentStates.data.index_select(0, positions))
+            # sentStates.data.copy_(sentStates.data.index_select(0, positions))
+            sentStates.copy_(sentStates.index_select(0, positions))
 
     def beam_update_memory(self, state, idx):
         positions = self.getCurrentOrigin()
@@ -132,16 +134,15 @@ class Beam(object):
         br, d = e.size()
         e = e.view(self.size, br // self.size, d)
         sentStates = e[:, idx]
-        sentStates.data.copy_(sentStates.data.index_select(0, positions))
-	
-
+        # sentStates.data.copy_(sentStates.data.index_select(0, positions))
+        sentStates.copy_(sentStates.index_select(0, positions))
 
     def sortFinished(self, minimum=None):
         if minimum is not None:
             i = 0
             # Add from beam until we have minimum outputs.
             while len(self.finished) < minimum:
-                s = self.scores[i]
+                s = self.scores[i].item()
                 self.finished.append((s, len(self.nextYs) - 1, i))
                 i += 1
 
@@ -156,7 +157,7 @@ class Beam(object):
         """
         hyp, attn = [], []
         for j in range(len(self.prevKs[:timestep]) - 1, -1, -1):
-            hyp.append(self.nextYs[j+1][k])
+            hyp.append(self.nextYs[j+1][k].item())
             attn.append(self.attn[j][k])
-            k = self.prevKs[j][k]
+            k = self.prevKs[j][k].item()
         return hyp[::-1], torch.stack(attn[::-1])
