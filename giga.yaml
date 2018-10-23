@@ -1,12 +1,5 @@
 data: '/home/linjunyang/giga/data/'
-<<<<<<< HEAD
 logF: 'experiments/giga/'
-||||||| merged common ancestors
-logF: 'experiments/'
-#refF: '/home/linjunyang/nist/nist03.tok.ref'
-=======
-logF: 'experiments/'
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 epoch: 20
 batch_size: 64
 optim: 'adam'

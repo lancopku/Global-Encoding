@@ -43,16 +43,8 @@ def load_data():
     data = pickle.load(open(config.data+'data.pkl', 'rb'))
     data['train']['length'] = int(data['train']['length'] * opt.scale)
 
-<<<<<<< HEAD
     trainset = utils.BiDataset(data['train'], char=config.char)
     validset = utils.BiDataset(data['valid'], char=config.char)
-||||||| merged common ancestors
-    trainset = utils.BiDataset(datas['train'], char=config.char)
-    validset = utils.BiDataset(datas['valid'], char=config.char)
-=======
-    trainset = utils.BiDataset(datas['train'], char=config.char)
-    validset = utils.BiDataset(datas['test'], char=config.char)
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 
     src_vocab = data['dict']['src']
     tgt_vocab = data['dict']['tgt']

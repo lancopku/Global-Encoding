@@ -11,17 +11,8 @@ learning_rate_decay: 0.5
 start_decay_at: 6
 emb_size: 512
 hidden_size: 512
-<<<<<<< HEAD
 dec_num_layers: 3
 enc_num_layers: 3
-||||||| merged common ancestors
-dec_num_layers: 2
-enc_num_layers: 3
-res_layers: 1
-=======
-dec_num_layers: 2
-enc_num_layers: 2
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 bidirectional: True
 dropout: 0.0
 max_time_step: 50
@@ -35,11 +26,4 @@ schedule: False
 selfatt: True
 schesamp: False
 swish: True
-<<<<<<< HEAD
 length_norm: True
-||||||| merged common ancestors
-hops: 1
-=======
-hops: 1
-length_norm: True
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
