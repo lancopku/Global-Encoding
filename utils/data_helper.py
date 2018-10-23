@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 import linecache
 import torch
 import torch.utils.data as torch_data

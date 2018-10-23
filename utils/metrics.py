@@ -34,11 +34,6 @@ def bleu(reference, candidate, log_path, print_log, config):
 
 
 def rouge(reference, candidate, log_path, print_log, config):
-    '''print(len(reference), len(candidate), candidate[:5])
-    len_sum = 0
-    for i in range(len(reference)):
-        len_sum += len(reference[i].split())
-    print(len_sum/len(reference))'''
     assert len(reference) == len(candidate)
 
     ref_dir = log_path + 'reference/'
