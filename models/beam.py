@@ -143,7 +143,7 @@ class Beam(object):
             while len(self.finished) < minimum:
                 s = self.scores[i]
                 self.finished.append((s, len(self.nextYs) - 1, i))
-		i += 1
+                i += 1
 
         self.finished.sort(key=lambda a: -a[0])
         scores = [sc for sc, _, _ in self.finished]
