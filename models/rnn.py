@@ -16,7 +16,6 @@ class rnn_encoder(nn.Module):
         self.embedding = embedding if embedding is not None else nn.Embedding(config.src_vocab_size, config.emb_size)
         self.hidden_size = config.hidden_size
         self.config = config
-<<<<<<< HEAD
 
         if config.swish:
             self.sw1 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.BatchNorm1d(config.hidden_size), nn.ReLU())
@@ -40,50 +39,6 @@ class rnn_encoder(nn.Module):
             elif config.attention == 'luong_gate':
                 self.attention = models.luong_gate_attention(config.hidden_size, config.emb_size)
 
-||||||| merged common ancestors
-        self.dropout = nn.Dropout(p=0.02)
-        self.sw1 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.BatchNorm1d(config.hidden_size), nn.ReLU())
-        self.sw3 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
-        self.sw33 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
-        self.swish = nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=5, padding=2)
-        '''self.swish = nn.Sequential(nn.Conv1d(config.hidden_size, 128, kernel_size=7, padding=3), nn.SELU(), nn.MaxPool1d(5, stride=1, padding=2),
-                                   nn.Conv1d(128, 128, kernel_size=5, padding=2), nn.SELU(), nn.AvgPool1d(3, stride=1, padding=1),
-                                   nn.Conv1d(128, config.hidden_size, kernel_size=3, padding=1), nn.Sigmoid())'''
-        self.linear = nn.Sequential(nn.Linear(2*config.hidden_size, 2*config.hidden_size), nn.GLU())
-        self.filter_linear = nn.Linear(3*config.hidden_size, config.hidden_size)
-        self.tanh = nn.Tanh()
-        self.sigmoid = nn.Sigmoid()
-        self.linear2 = nn.Linear(config.hidden_size, 1)
-        self.sigmoid1 = nn.Sigmoid()
-        self.PosEnc = PositionalEncoding(config)
-        if config.attention == 'None':
-            self.attention = None
-        elif config.attention == 'bahdanau':
-            self.attention = models.bahdanau_attention(config.hidden_size, config.emb_size, config.pool_size)
-        elif config.attention == 'luong':
-            self.attention = models.luong_attention(config.hidden_size, config.emb_size, config.pool_size)
-        elif config.attention == 'luong_gate':
-            self.attention = models.luong_gate_attention(config.hidden_size, config.emb_size)
-=======
-        self.dropout = nn.Dropout(p=0.02)
-        self.sw1 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.BatchNorm1d(config.hidden_size), nn.ReLU())
-        self.sw3 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
-        self.sw33 = nn.Sequential(nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=1, padding=0), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size), nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=3, padding=1), nn.ReLU(), nn.BatchNorm1d(config.hidden_size))
-        self.swish = nn.Conv1d(config.hidden_size, config.hidden_size, kernel_size=5, padding=2)
-        self.linear = nn.Sequential(nn.Linear(2*config.hidden_size, 2*config.hidden_size), nn.GLU(), nn.Dropout(config.dropout))
-        self.filter_linear = nn.Linear(3*config.hidden_size, config.hidden_size)
-        self.tanh = nn.Tanh()
-        self.sigmoid = nn.Sigmoid()
-        self.PosEnc = PositionalEncoding(config)
-        if config.attention == 'None':
-            self.attention = None
-        elif config.attention == 'bahdanau':
-            self.attention = models.bahdanau_attention(config.hidden_size, config.emb_size, config.pool_size)
-        elif config.attention == 'luong':
-            self.attention = models.luong_attention(config.hidden_size, config.emb_size, config.pool_size)
-        elif config.attention == 'luong_gate':
-            self.attention = models.luong_gate_attention(config.hidden_size, config.emb_size)
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
         if config.cell == 'gru':
             self.rnn = nn.GRU(input_size=config.emb_size, hidden_size=config.hidden_size,
                               num_layers=config.enc_num_layers, dropout=config.dropout,
@@ -94,45 +49,11 @@ class rnn_encoder(nn.Module):
                                bidirectional=config.bidirectional)
 
     def forward(self, inputs, lengths):
-<<<<<<< HEAD
         embs = pack(self.embedding(inputs), lengths)
         outputs, state = self.rnn(embs)
         outputs = unpack(outputs)[0]
         if self.config.bidirectional:
-||||||| merged common ancestors
-        if self.config.resRNN:
-            embs = pack(self.embedding(inputs), lengths)
-            inputs = unpack(embs)[0]
-            embeds = inputs
-        else:
-            embs = pack(self.embedding(inputs), lengths)
-            embeds = unpack(embs)[0]
-            if self.config.attemb:
-                outputs, state = self.rnnpos(embs)
-                outputs = unpack(outputs)[0]
-                self.attention.init_context(context = outputs)
-                out_attn = []
-                for i, emb in enumerate(embeds.split(1)):
-                    output, attn = self.attention(emb.squeeze(0), embeds)
-                    out_attn.append(output)
-                embs = torch.stack(out_attn)
-            outputs, state = self.rnn(embeds)
-            if self.config.attemb:
-                outputs = outputs
-            else:
-                outputs = outputs
-            if self.config.bidirectional:
-                #outputs = outputs[:, :, :self.hidden_size] + outputs[:, :, self.hidden_size:]
-                outputs = self.linear(outputs)
-=======
-        embs = pack(self.embedding(inputs), lengths)
-        embeds = unpack(embs)[0]
-        outputs, state = self.rnn(embs)
-        outputs = unpack(outputs)[0]
-        if self.config.bidirectional:
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
             if self.config.swish:
-<<<<<<< HEAD
                 outputs = self.linear(outputs)
             else:
                 outputs = outputs[:,:,:self.config.hidden_size] + outputs[:,:,self.config.hidden_size:]
@@ -147,32 +68,6 @@ class rnn_encoder(nn.Module):
                 conv = conv.transpose(0,1)
                 outputs = outputs.transpose(1,2).transpose(0,1)
             else:
-||||||| merged common ancestors
-                outputs = self.PosEnc(outputs)
-                outputs = outputs.transpose(0,1).transpose(1,2)
-                conv1 = self.sw1(outputs)
-                conv3 = self.sw3(outputs)
-                conv33 = self.sw33(outputs)
-                conv = torch.cat((conv1, conv3, conv33), 1)
-                conv = self.filter_linear(conv.transpose(1,2))#.transpose(0,1)
-                #outputs = outputs.transpose(1,2).transpose(0,1)
-=======
-                outputs = self.linear(outputs)
-            else:
-                outputs = outputs[:,:,:self.config.hidden_size] + outputs[:,:,self.config.hidden_size:]
-        if self.config.swish:
-            outputs = self.PosEnc(outputs)
-            outputs = outputs.transpose(0,1).transpose(1,2)
-            conv1 = self.sw1(outputs)
-            conv3 = self.sw3(outputs)
-            conv33 = self.sw33(outputs)
-            conv = torch.cat((conv1, conv3, conv33), 1)
-            conv = self.filter_linear(conv.transpose(1,2))
-            if self.config.selfatt:
-                conv = conv.transpose(0,1)
-                outputs = outputs.transpose(1,2).transpose(0,1)
-            else:
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
                 gate = self.sigmoid(conv)
                 outputs = outputs * gate.transpose(1,2)
                 outputs = outputs.transpose(1,2).transpose(0,1)

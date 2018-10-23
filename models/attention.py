@@ -29,10 +29,9 @@ class luong_attention(nn.Module):
 
 class luong_gate_attention(nn.Module):
     
-    def __init__(self, hidden_size, emb_size, prob=0.0):
+    def __init__(self, hidden_size, emb_size, prob=0.1):
         super(luong_gate_attention, self).__init__()
         self.hidden_size, self.emb_size = hidden_size, emb_size
-<<<<<<< HEAD
         self.linear_enc = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
                                         nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
         self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
@@ -40,26 +39,10 @@ class luong_gate_attention(nn.Module):
         self.linear_out = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), 
                                         nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
         self.softmax = nn.Softmax(dim=-1)
-||||||| merged common ancestors
-        self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.Dropout(p=prob))
-        self.feed = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.remove = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.linear_out = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
-        self.mem_gate = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.Sigmoid(), nn.Dropout(p=prob))
-        self.softmax = nn.Softmax(dim=1)
-        self.selu = nn.SELU()
-        self.simple = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Linear(hidden_size, hidden_size), nn.Sigmoid())
-=======
-        self.linear_in = nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.Dropout(p=prob))
-        self.linear_out = nn.Sequential(nn.Linear(2*hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob), nn.Linear(hidden_size, hidden_size), nn.SELU(), nn.Dropout(p=prob))
-        self.softmax = nn.Softmax(dim=1)
-        self.selu = nn.SELU()
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 
     def init_context(self, context):
         self.context = context.transpose(0, 1)
 
-<<<<<<< HEAD
     def forward(self, h, selfatt=False):
         if selfatt:
             gamma_enc = self.linear_enc(self.context) # Batch_size * Length * Hidden_size
@@ -77,48 +60,6 @@ class luong_gate_attention(nn.Module):
             output = self.linear_out(torch.cat([h, c_t], 1))
 
         return output, weights
-||||||| merged common ancestors
-    def forward(self, h, embs, m, hops=1, selfatt=False):
-        if hops == 1:
-            gamma_h = self.linear_in(h).unsqueeze(2)
-            #gamma_h = self.selu(gamma_h)
-            weights = torch.bmm(self.context, gamma_h).squeeze(2)
-            if selfatt:
-                weights = weights / math.sqrt(512)
-            weights = self.softmax(weights)
-            c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-            memory = m
-            output = self.linear_out(torch.cat([h, c_t], 1))
-            return output, weights, memory
-        x = h
-        for i in range(hops):
-            gamma_h = self.linear_in(x).unsqueeze(2)
-            weights = torch.bmm(self.context, gamma_h).squeeze(2)
-            weights = self.softmax(weights)
-            c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-            x = c_t + x
-        feed_gate = self.feed(torch.cat([x, h], 1))
-        remove_gate = self.remove(torch.cat([x, h], 1))
-        memory = (remove_gate * m) + (feed_gate * (x+h))
-        mem_gate = self.mem_gate(torch.cat([memory, h], 1))
-        m_x = mem_gate * x
-        output = self.linear_out(torch.cat([m_x, h], 1))
-
-        return output, weights, memory
-=======
-    def forward(self, h, embs, m, hops=1, selfatt=False):
-        gamma_h = self.linear_in(h).unsqueeze(2)
-        weights = torch.bmm(self.context, gamma_h).squeeze(2)
-        if selfatt:
-            weights = weights / math.sqrt(512)
-        weights = self.softmax(weights)
-        c_t = torch.bmm(weights.unsqueeze(1), self.context).squeeze(1)
-        memory = m
-        output = self.linear_out(torch.cat([h, c_t], 1))
-        return output, weights, memory
-
-        return output, weights, memory
->>>>>>> b020a51dce99c2d814cf2beaf01ca842dadff7f6
 
 
 class bahdanau_attention(nn.Module):
