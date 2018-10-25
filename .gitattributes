@@ -1,0 +1,3 @@
+*.perl linguist-language=python 
+*.py linguist-language=python
+*.pl linguist-language=python
