@@ -1,12 +1,4 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
-
 import torch
-from collections import OrderedDict
 
 PAD = 0
 UNK = 1
@@ -17,10 +9,18 @@ PAD_WORD = '<blank>'
 UNK_WORD = '<unk> '
 BOS_WORD = '<s>'
 EOS_WORD = '</s>'
+SPA_WORD = ' '
 
+def flatten(l):
+    for el in l:
+        if hasattr(el, "__iter__"):
+            for sub in flatten(el):
+                yield sub
+        else:
+            yield el
 
 class Dict(object):
-    def __init__(self, data=None, lower=True):
+    def __init__(self, data=None, lower=False):
         self.idxToLabel = {}
         self.labelToIdx = {}
         self.frequencies = {}
@@ -105,14 +105,13 @@ class Dict(object):
 
     # Return a new dictionary with the `size` most frequent entries.
     def prune(self, size):
-        if size > self.size():
+        if size >= self.size():
             return self
 
         # Only keep the `size` most frequent entries.
-        freq = torch.tensor(
+        freq = torch.Tensor(
                 [self.frequencies[i] for i in range(len(self.frequencies))])
         _, idx = torch.sort(freq, 0, True)
-        idx = idx.tolist()
 
         newDict = Dict()
         newDict.lower = self.lower
@@ -140,62 +139,17 @@ class Dict(object):
         if eosWord is not None:
             vec += [self.lookup(eosWord)]
 
-        return vec
-
-
-    def convertToIdxandOOVs(self, labels, unkWord, bosWord=None, eosWord=None):
-        vec = []
-        oovs = OrderedDict()
-
-        if bosWord is not None:
-            vec += [self.lookup(bosWord)]
-
-        unk = self.lookup(unkWord)
-        for label in labels:
-            id = self.lookup(label, default=unk)
-            if id != unk:
-                vec += [id]
-            else:
-                if label not in oovs:
-                    oovs[label] = len(oovs)+self.size()
-                oov_num = oovs[label]
-                vec += [oov_num]
-
-        if eosWord is not None:
-            vec += [self.lookup(eosWord)]
-
-        return torch.LongTensor(vec), oovs
-
-    def convertToIdxwithOOVs(self, labels, unkWord, bosWord=None, eosWord=None, oovs=None):
-        vec = []
-
-        if bosWord is not None:
-            vec += [self.lookup(bosWord)]
-
-        unk = self.lookup(unkWord)
-        for label in labels:
-            id = self.lookup(label, default=unk)
-            if id == unk and label in oovs:
-                vec += [oovs[label]]
-            else:
-                vec += [id]
-
-        if eosWord is not None:
-            vec += [self.lookup(eosWord)]
+        vec = [x for x in flatten(vec)]
 
         return torch.LongTensor(vec)
 
-
     # Convert `idx` to labels. If index `stop` is reached, convert it and return.
-    def convertToLabels(self, idx, stop, oovs=None):
+    def convertToLabels(self, idx, stop):
         labels = []
 
         for i in idx:
             if i == stop:
                 break
-            if i < self.size():
-                labels += [self.getLabel(i)]
-            else:
-                labels += [oovs[i-self.size()]]
+            labels += [self.getLabel(i)]
 
         return labels
