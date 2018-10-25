@@ -11,9 +11,9 @@ This is the code for our paper *Global Encoding for Abstractive Summarization*, 
 
 In order to use pyrouge, set rouge path with the line below:
 ```
-pyrouge_set_rouge_path script/RELEASE-1.5.5
+pyrouge_set_rouge_path RELEASE-1.5.5/
 ```
-
+It seems that some user have met problems with pyrouge, so I have updated the script, and users can put the directory "RELEASE-1.5.5" in your home directory and set rouge path to it.
 **************************************************************
 
 ## Preprocessing
