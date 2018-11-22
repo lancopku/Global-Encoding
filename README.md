@@ -6,14 +6,14 @@ This is the code for our paper *Global Encoding for Abstractive Summarization*, 
 ## Requirements
 * Ubuntu 16.0.4
 * Python 3.5
-* Pytorch 0.4.1
+* Pytorch 0.4.1 (updated)
 * pyrouge
 
 In order to use pyrouge, set rouge path with the line below:
 ```
 pyrouge_set_rouge_path RELEASE-1.5.5/
 ```
-It seems that some user have met problems with pyrouge, so I have updated the script, and users can put the directory "RELEASE-1.5.5" in your home directory and set rouge path to it.
+It seems that some user have met problems with pyrouge, so I have updated the script, and users can put the directory "RELEASE-1.5.5" in your home directory and set rouge path to it  (or run the command "chmod 777 RELEASE-1.5.5" for the permission).
 **************************************************************
 
 ## Preprocessing
@@ -28,6 +28,7 @@ Remember to put the data into a folder and name them *train.src*, *train.tgt*, *
 ```
 python3 train.py -log log_name -config config_yaml -gpus id
 ```
+Create your own yaml file for hyperparameter setting.
 
 ****************************************************************
 
@@ -39,7 +40,7 @@ python3 train.py -log log_name -config config_yaml -gpus id -restore checkpoint 
 *******************************************************************
 
 # Citation
-If you use this code for your research, please cite the paper this code is based on: <a href="https://arxiv.org/abs/1805.03989">Global Encoding for Abstractive Summarization</a>:.
+If you use this code for your research, please kindly cite our paper:
 ```
 @inproceedings{globalencoding,
   title     = {Global Encoding for Abstractive Summarization},
