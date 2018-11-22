@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-# from torch.autograd import Variable
 import utils
 import models
 import random
@@ -24,7 +23,6 @@ class seq2seq(nn.Module):
         self.use_cuda = config.use_cuda
         self.config = config
         self.criterion = nn.CrossEntropyLoss(ignore_index=utils.PAD, reduction='none')
-        # self.criterion = nn.CrossEntropyLoss(ignore_index=utils.PAD, reduce=False)
         if config.use_cuda:
             self.criterion.cuda()
 
@@ -39,7 +37,6 @@ class seq2seq(nn.Module):
         targets = targets.t()
         teacher = random.random() < teacher_ratio
 
-        # contexts, state = self.encoder(src, src_len.data.tolist())
         contexts, state = self.encoder(src, src_len.tolist())
 
         if self.decoder.attention is not None:
@@ -67,14 +64,12 @@ class seq2seq(nn.Module):
         lengths, indices = torch.sort(src_len, dim=0, descending=True)
         _, reverse_indices = torch.sort(indices)
         src = torch.index_select(src, dim=0, index=indices)
-        # bos = Variable(torch.ones(src.size(0)).long().fill_(utils.BOS), volatile=True)
         bos = torch.ones(src.size(0)).long().fill_(utils.BOS)
         src = src.t()
 
         if self.use_cuda:
             bos = bos.cuda()
 
-        # contexts, state = self.encoder(src, lengths.data.tolist())
         contexts, state = self.encoder(src, lengths.tolist())
 
         if self.decoder.attention is not None:
@@ -88,13 +83,11 @@ class seq2seq(nn.Module):
             attn_matrix += [attn_weights]
 
         outputs = torch.stack(outputs)
-        # sample_ids = torch.index_select(outputs, dim=1, index=reverse_indices).t().data
         sample_ids = torch.index_select(outputs, dim=1, index=reverse_indices).t()
 
         if self.decoder.attention is not None:
             attn_matrix = torch.stack(attn_matrix)
             alignments = attn_matrix.max(2)[1]
-            # alignments = torch.index_select(alignments, dim=1, index=reverse_indices).t().data
             alignments = torch.index_select(alignments, dim=1, index=reverse_indices).t()
         else:
             alignments = None
@@ -110,12 +103,10 @@ class seq2seq(nn.Module):
         src = torch.index_select(src, dim=0, index=indices)
         src = src.t()
         batch_size = src.size(1)
-        # contexts, encState = self.encoder(src, lengths.data.tolist())
         contexts, encState = self.encoder(src, lengths.tolist())
 
         #  (1b) Initialize for the decoder.
         def var(a):
-            # return Variable(a, volatile=True)
             return torch.tensor(a, requires_grad=False)
 
         def rvar(a):
@@ -132,10 +123,8 @@ class seq2seq(nn.Module):
         contexts = rvar(contexts)
 
         if self.config.cell == 'lstm':
-            # decState = (rvar(encState[0].data), rvar(encState[1].data))
             decState = (rvar(encState[0]), rvar(encState[1]))
         else:
-            # decState = rvar(encState.data)
             decState = rvar(encState)
 
         beam = [models.Beam(beam_size, n_best=1,
@@ -168,7 +157,6 @@ class seq2seq(nn.Module):
             # (c) Advance each beam.
             # update state
             for j, b in enumerate(beam):
-                # b.advance(output.data[:, j], attn.data[:, j])
                 b.advance(output[:, j], attn[:, j])
                 if self.config.cell == 'lstm':
                     b.beam_update(decState, j)

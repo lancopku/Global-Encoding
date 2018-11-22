@@ -1,6 +1,5 @@
 import torch
 import torch.utils.data
-# from torch.autograd import Variable
 import lr_scheduler as L
 
 import os
@@ -121,10 +120,6 @@ def train_model(model, data, optim, epoch, params):
 
         model.zero_grad()
 
-        # src = Variable(src)
-        # tgt = Variable(tgt)
-        # src_len = Variable(src_len)
-
         if config.use_cuda:
             src = src.cuda()
             tgt = tgt.cuda()
@@ -146,8 +141,6 @@ def train_model(model, data, optim, epoch, params):
                 loss, outputs = model(src, lengths, dec, targets)
             pred = outputs.max(2)[1]
             targets = targets.t()
-            # num_correct = pred.data.eq(targets.data).masked_select(targets.ne(utils.PAD).data).sum()
-            # num_total = targets.ne(utils.PAD).data.sum()
             num_correct = pred.eq(targets).masked_select(targets.ne(utils.PAD)).sum().item()
             num_total = targets.ne(utils.PAD).sum().item()
             if config.max_split == 0:
@@ -155,7 +148,6 @@ def train_model(model, data, optim, epoch, params):
                 loss.backward()
             optim.step()
 
-            # params['report_loss'] += loss.data
             params['report_loss'] += loss.item()
             params['report_correct'] += num_correct
             params['report_total'] += num_total
@@ -204,8 +196,6 @@ def eval_model(model, data, params):
 
     for src, tgt, src_len, tgt_len, original_src, original_tgt in validloader:
 
-        # src = Variable(src, volatile=True)
-        # src_len = Variable(src_len, volatile=True)
         if config.use_cuda:
             src = src.cuda()
             src_len = src_len.cuda()

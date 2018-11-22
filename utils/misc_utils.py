@@ -1,9 +1,3 @@
-'''
- @Date  : 2017/12/18
- @Author: Shuming Ma
- @mail  : shumingma@pku.edu.cn 
- @homepage: shumingma.com
-'''
 import yaml
 import os
 import time
@@ -25,7 +19,6 @@ def print_log(file):
         with open(file, 'a') as f:
             f.write(s)
     return write_log
-
 
 
 _, term_width = os.popen('stty size', 'r').read().split()

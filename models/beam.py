@@ -116,7 +116,6 @@ class Beam(object):
             a, br, d = e.size()
             e = e.view(a, self.size, br // self.size, d)
             sentStates = e[:, :, idx]
-            # sentStates.data.copy_(sentStates.data.index_select(1, positions))
             sentStates.copy_(sentStates.index_select(1, positions))
 
     def beam_update_gru(self, state, idx):
@@ -125,7 +124,6 @@ class Beam(object):
             br, d = e.size()
             e = e.view(self.size, br // self.size, d)
             sentStates = e[:, idx]
-            # sentStates.data.copy_(sentStates.data.index_select(0, positions))
             sentStates.copy_(sentStates.index_select(0, positions))
 
     def beam_update_memory(self, state, idx):
@@ -134,7 +132,6 @@ class Beam(object):
         br, d = e.size()
         e = e.view(self.size, br // self.size, d)
         sentStates = e[:, idx]
-        # sentStates.data.copy_(sentStates.data.index_select(0, positions))
         sentStates.copy_(sentStates.index_select(0, positions))
 
     def sortFinished(self, minimum=None):
