@@ -288,7 +288,7 @@ def main():
     # checkpoint
     if opt.restore:
         print('loading checkpoint...\n')
-        checkpoints = torch.load(opt.restore)
+        checkpoints = torch.load(opt.restore, map_location = 'cuda:%d' % opt.gpus[0])
     else:
         checkpoints = None
 
