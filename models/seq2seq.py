@@ -83,12 +83,12 @@ class seq2seq(nn.Module):
             attn_matrix += [attn_weights]
 
         outputs = torch.stack(outputs)
-        sample_ids = torch.index_select(outputs, dim=1, index=reverse_indices).t()
+        sample_ids = torch.index_select(outputs, dim=1, index=reverse_indices).t().tolist()
 
         if self.decoder.attention is not None:
             attn_matrix = torch.stack(attn_matrix)
             alignments = attn_matrix.max(2)[1]
-            alignments = torch.index_select(alignments, dim=1, index=reverse_indices).t()
+            alignments = torch.index_select(alignments, dim=1, index=reverse_indices).t().tolist()
         else:
             alignments = None
 
